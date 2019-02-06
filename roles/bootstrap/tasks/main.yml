@@ -1,0 +1,51 @@
+- name: Make sure SELinux is disabled
+  selinux:
+    state: disabled
+  when: noselinux is defined and noselinux == True
+- name: Disable IPv6 (1/2)
+  lineinfile:
+    path: /etc/sysctl.conf
+    regexp: 'net.ipv6.conf.all.disable_ipv6='
+    line: net.ipv6.conf.all.disable_ipv6=1
+- name: Disable IPv6 (2/2)
+  lineinfile:
+    path: /etc/sysctl.conf
+    regexp: 'net.ipv6.conf.default.disable_ipv6='
+    line: net.ipv6.conf.default.disable_ipv6=1
+- name: Reload sysctl
+  shell: sysctl -p
+- name: Create .ssh/
+  file:
+    path: /root/.ssh/
+    state: directory
+    mode: 0700
+- name: Authorize Alex as root via ssh
+  lineinfile:
+    path: /root/.ssh/authorized_keys
+    regexp: '^ssh-(rsa|ed25519) .* alex@latitude-5289$'
+    line: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAkvkrN7lZyd/cbWuEuF36OQg8KH4HlW7TNE2K4dMCg9 alex@latitude-5289
+- name: System update
+  yum:
+    name: "*"
+    state: latest
+- name: Packages (1/2)
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+  - vim
+  - tmux
+  - curl
+  - wget
+  - mlocate
+  - epel-release
+- name: Packages (2/2)
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+  - bash-completion-extras
+  - htop
+  - atop
+  - iftop
+
