@@ -2,6 +2,8 @@
 - hosts: k1-all
   tasks:
   - import_role:
+      name: bootstrap
+  - import_role:
       name: docker-cpu
     vars:
       bip: 192.168.115.5/24
